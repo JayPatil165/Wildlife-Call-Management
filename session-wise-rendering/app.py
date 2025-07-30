@@ -23,7 +23,7 @@ def load_data():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
     creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
     client = gspread.authorize(creds)
-    sheet = client.open_by_key("18pGiKDj0WIrJBDZ5cAa3WRUvZQ1PvL2swqMe2lH8pbc")
+    sheet = client.open_by_key("1eey_a4t5EOL_nyEDau4FLvXomcnwgxWa5F3Rjd52OQg")
     worksheet = sheet.worksheet("Form_responses_1")
     data = worksheet.get_all_records()
     df = pd.DataFrame(data)
@@ -38,16 +38,16 @@ st_autorefresh(10*1000, key="datarefresh")
 # --------------------------
 st.sidebar.title("🔎 Filter Data")
 
-wildlife_types = st.sidebar.multiselect("🦝 Type of Wildlife", df['Type of Wildlife'].unique(), default=df['Type of Wildlife'].unique())
-talukas = st.sidebar.multiselect("📍 Taluka", df['Location (Taluka)'].unique(), default=df['Location (Taluka)'].unique())
+wildlife_types = st.sidebar.multiselect("🦝 Type of Wildlife", df['कोणत्या वन्यप्राण्याची नोंद करू इच्छिता:'].unique(), default=df['कोणत्या वन्यप्राण्याची नोंद करू इच्छिता:'].unique())
+talukas = st.sidebar.multiselect("📍 Taluka", df['तालुका:'].unique(), default=df['तालुका:'].unique())
 min_date = df['Timestamp'].min().date()
 max_date = df['Timestamp'].max().date()
 date_range = st.sidebar.date_input("📆 Date Range", [min_date, max_date])
 
 # Apply filters
 df_filtered = df[
-    (df['Type of Wildlife'].isin(wildlife_types)) &
-    (df['Location (Taluka)'].isin(talukas)) &
+    (df['कोणत्या वन्यप्राण्याची नोंद करू इच्छिता:'].isin(wildlife_types)) &
+    (df['तालुका:'].isin(talukas)) &
     (df['Timestamp'].dt.date >= date_range[0]) &
     (df['Timestamp'].dt.date <= date_range[1])
 ]
@@ -60,9 +60,9 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 total_incidents = len(df_filtered)
-wildlife_types_count = df_filtered['Type of Wildlife'].nunique()
-villages_count = df_filtered['Village Name'].nunique()
-total_calls = df_filtered["Caller's Name"].count()
+wildlife_types_count = df_filtered['कोणत्या वन्यप्राण्याची नोंद करू इच्छिता:'].nunique()
+villages_count = df_filtered['गावाचे नाव:'].nunique()
+total_calls = df_filtered["संपर्क करणाऱ्याचे नाव:"].count()
 
 st.markdown(f"""
 <style>
@@ -163,30 +163,30 @@ for i, (label, key) in enumerate(chart_buttons.items()):
 # CHART RENDERING
 # --------------------------
 if st.session_state.active_chart == "wildlife":
-    data = df_filtered['Type of Wildlife'].value_counts().reset_index()
+    data = df_filtered['कोणत्या वन्यप्राण्याची नोंद करू इच्छिता:'].value_counts().reset_index()
     data.columns = ['Wildlife', 'Count']
     fig = px.bar(data, x='Wildlife', y='Count', color='Wildlife')
     st.plotly_chart(fig, use_container_width=True)
 
 elif st.session_state.active_chart == "taluka":
-    data = df_filtered['Location (Taluka)'].value_counts().reset_index()
+    data = df_filtered['तालुका:'].value_counts().reset_index()
     data.columns = ['Taluka', 'Count']
     fig = px.pie(data, names='Taluka', values='Count', hole=0.4)
     st.plotly_chart(fig, use_container_width=True)
 
 elif st.session_state.active_chart == "types":
-    combo = df_filtered.groupby(['Type of Wildlife', 'Type of Incident']).size().reset_index(name='Count')
-    fig = px.bar(combo, x='Type of Wildlife', y='Count', color='Type of Incident', barmode='group')
+    combo = df_filtered.groupby(['कोणत्या वन्यप्राण्याची नोंद करू इच्छिता:', 'वन्यजीवांच्या बाबत आपण काय कळवू इच्छिता याची नोंद करा:']).size().reset_index(name='Count')
+    fig = px.bar(combo, x='कोणत्या वन्यप्राण्याची नोंद करू इच्छिता:', y='Count', color='वन्यजीवांच्या बाबत आपण काय कळवू इच्छिता याची नोंद करा:', barmode='group')
     st.plotly_chart(fig, use_container_width=True)
 
 elif st.session_state.active_chart == "incident_freq":
-    freq = df_filtered['Type of Incident'].value_counts().reset_index()
-    freq.columns = ['Type of Incident', 'Count']
-    fig = px.bar(freq, x='Type of Incident', y='Count', color='Count')
+    freq = df_filtered['वन्यजीवांच्या बाबत आपण काय कळवू इच्छिता याची नोंद करा:'].value_counts().reset_index()
+    freq.columns = ['वन्यजीवांच्या बाबत आपण काय कळवू इच्छिता याची नोंद करा:', 'Count']
+    fig = px.bar(freq, x='वन्यजीवांच्या बाबत आपण काय कळवू इच्छिता याची नोंद करा:', y='Count', color='Count')
     st.plotly_chart(fig, use_container_width=True)
 
 elif st.session_state.active_chart == "top_talukas":
-    top_talukas = df_filtered['Location (Taluka)'].value_counts().head(10).reset_index()
+    top_talukas = df_filtered['तालुका:'].value_counts().head(10).reset_index()
     top_talukas.columns = ['Taluka', 'Incidents']
     fig = px.bar(top_talukas.sort_values(by='Incidents'), x='Incidents', y='Taluka', orientation='h')
     st.plotly_chart(fig, use_container_width=True)
@@ -198,31 +198,31 @@ elif st.session_state.active_chart == "monthly":
     st.plotly_chart(fig, use_container_width=True)
 
 elif st.session_state.active_chart == "repeat":
-    repeat = df_filtered.groupby([df_filtered['Timestamp'].dt.date, 'Location (Taluka)']).size().reset_index(name='Count')
-    top = repeat['Location (Taluka)'].value_counts().head(5).index
-    repeat = repeat[repeat['Location (Taluka)'].isin(top)]
-    fig = px.line(repeat, x='Timestamp', y='Count', color='Location (Taluka)')
+    repeat = df_filtered.groupby([df_filtered['Timestamp'].dt.date, 'तालुका:']).size().reset_index(name='Count')
+    top = repeat['तालुका:'].value_counts().head(5).index
+    repeat = repeat[repeat['तालुका:'].isin(top)]
+    fig = px.line(repeat, x='Timestamp', y='Count', color='तालुका:')
     st.plotly_chart(fig, use_container_width=True)
 
 elif st.session_state.active_chart == "timeline":
-    timeline = df_filtered.groupby([df_filtered['Timestamp'].dt.date, 'Type of Wildlife']).size().reset_index(name='Incidents')
-    fig = px.line(timeline, x='Timestamp', y='Incidents', color='Type of Wildlife')
+    timeline = df_filtered.groupby([df_filtered['Timestamp'].dt.date, 'कोणत्या वन्यप्राण्याची नोंद करू इच्छिता:']).size().reset_index(name='Incidents')
+    fig = px.line(timeline, x='Timestamp', y='Incidents', color='कोणत्या वन्यप्राण्याची नोंद करू इच्छिता:')
     st.plotly_chart(fig, use_container_width=True)
 
 elif st.session_state.active_chart == "monthly_taluka":
     df_filtered['Month'] = df_filtered['Timestamp'].dt.to_period("M").astype(str)
-    data = df_filtered.groupby(['Month', 'Location (Taluka)']).size().reset_index(name='Incidents')
-    fig = px.line(data, x='Month', y='Incidents', color='Location (Taluka)', markers=True)
+    data = df_filtered.groupby(['Month', 'तालुका:']).size().reset_index(name='Incidents')
+    fig = px.line(data, x='Month', y='Incidents', color='तालुका:', markers=True)
     st.plotly_chart(fig, use_container_width=True)
 
 elif st.session_state.active_chart == "villages":
-    top_villages = df_filtered['Village Name'].value_counts().head(10).reset_index()
+    top_villages = df_filtered['गावाचे नाव:'].value_counts().head(10).reset_index()
     top_villages.columns = ['Village', 'Incidents']
     fig = px.bar(top_villages.sort_values(by='Incidents'), x='Incidents', y='Village', orientation='h')
     st.plotly_chart(fig, use_container_width=True)
 
 elif st.session_state.active_chart == "callers":
-    top_callers = df_filtered['Caller\'s Name'].value_counts().head(10).reset_index()
+    top_callers = df_filtered['संपर्क करणाऱ्याचे नाव:'].value_counts().head(10).reset_index()
     top_callers.columns = ['Caller', 'Reports']
     fig = px.bar(top_callers.sort_values(by='Reports'), x='Reports', y='Caller', orientation='h')
     st.plotly_chart(fig, use_container_width=True)
@@ -233,13 +233,31 @@ elif st.session_state.active_chart == "hourly":
     st.plotly_chart(fig, use_container_width=True)
 
 elif st.session_state.active_chart == "heatmap":
-    pivot = df_filtered.groupby(['Location (Taluka)', 'Type of Wildlife']).size().unstack(fill_value=0)
-    if not pivot.empty:
-        fig, ax = plt.subplots(figsize=(12, 6))
-        sns.heatmap(pivot, annot=True, fmt='g', cmap='YlGnBu')
-        st.pyplot(fig)
-    else:
-        st.info("No data available for selected filters to display heatmap.")
+    pivot = df_filtered.groupby(['तालुका:', 'कोणत्या वन्यप्राण्याची नोंद करू इच्छिता:']).size().unstack(fill_value=0)
+    import matplotlib.font_manager as fm
+    import os
+
+    # Load font from bundled assets
+    font_path = os.path.join("assets", "NotoSansDevanagari-VariableFont_wdth,wght.ttf")
+    devanagari_font = fm.FontProperties(fname=font_path)
+
+    # Create heatmap
+    fig, ax = plt.subplots(figsize=(12, 6))
+    sns.heatmap(pivot, annot=True, fmt='g', cmap='YlGnBu', ax=ax)
+
+    # Apply font to labels and title
+    ax.set_xlabel("कोणत्या वन्यप्राण्याची नोंद करू इच्छिता:", fontproperties=devanagari_font)
+    ax.set_ylabel("तालुका:", fontproperties=devanagari_font)
+    ax.set_title("तालुका व वन्यप्राणी प्रकारावर आधारित उष्णता नकाशा", fontproperties=devanagari_font)
+
+    # Apply font to tick labels
+    for label in ax.get_xticklabels():
+        label.set_fontproperties(devanagari_font)
+    for label in ax.get_yticklabels():
+        label.set_fontproperties(devanagari_font)
+
+    st.pyplot(fig)
+
 
 elif st.session_state.active_chart == "table":
     st.dataframe(df_filtered)
