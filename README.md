@@ -1,22 +1,4 @@
-<br>
-<p align="center">
-  <img src="https://i.imgur.com/s1gQZ9E.png" alt="Wildlife Dashboard Logo" width="150"/>
-</p>
 
-<h1 align="center">🐾 Wildlife Rescue Command Center 🐾</h1>
-
-<p align="center">
-  A real-time, interactive dashboard for managing and analyzing wildlife incident calls, bridging the gap between distress calls and rapid, data-driven response.
-</p>
-
-<p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
-  <a href="#"><img src="https://img.shields.io/badge/Python-3.8+-blue.svg" alt="Python Version"></a>
-  <a href="https://streamlit.io"><img src="https://img.shields.io/badge/Framework-Streamlit-ff69b4.svg" alt="Framework: Streamlit"></a>
-  <a href="#"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"></a>
-</p>
-
----
 
 ## 📸 Live Dashboard Showcase
 
@@ -61,3 +43,4 @@ Clone this project to your local machine.
 ```bash
 git clone [https://github.com/your-username/wildlife-dashboard-streamlit.git](https://github.com/your-username/wildlife-dashboard-streamlit.git)
 cd wildlife-dashboard-streamlit
+
