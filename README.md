@@ -1,13 +1,4 @@
 
-
-## 📸 Live Dashboard Showcase
-
-This dashboard provides at-a-glance insights into wildlife rescue operations. Analyze trends, filter data on the fly, and monitor key performance indicators in a clean, responsive interface.
-
-*(💡 **Pro-Tip:** Replace the image below with a high-quality GIF of your dashboard in action to truly capture its interactive nature!)*
-
-![Dashboard Demo GIF](https://i.imgur.com/rLgG4tG.gif)
-
 ---
 
 ## 🌟 Key Features & Capabilities
@@ -43,4 +34,5 @@ Clone this project to your local machine.
 ```bash
 git clone [https://github.com/your-username/wildlife-dashboard-streamlit.git](https://github.com/your-username/wildlife-dashboard-streamlit.git)
 cd wildlife-dashboard-streamlit
+
 
