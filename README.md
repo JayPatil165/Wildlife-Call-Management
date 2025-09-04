@@ -65,9 +65,6 @@ streamlit run app.py
    ```  
 4. Update the API link in your `app.py` or config file.  
 
-## 📸 Screenshots (Demo)  
-_Add screenshots or GIFs of your Streamlit dashboard here._  
-
 ## 📌 Future Improvements  
 - Add login/authentication  
 - Role-based dashboards (e.g., for forest officers, analysts)  
@@ -77,5 +74,4 @@ _Add screenshots or GIFs of your Streamlit dashboard here._
 ## 🤝 Contributing  
 Contributions are welcome! Feel free to fork this repo, create a branch, and submit a pull request.  
 
-## 📄 License  
-This project is licensed under the **MIT License**.  
+
