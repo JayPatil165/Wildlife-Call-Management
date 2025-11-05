@@ -105,25 +105,14 @@ export function FilterPanel({ data, onFilterChange }: FilterPanelProps) {
 
   return (
     <Card className="border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 dark:backdrop-blur-sm shadow-md relative z-50">
-      <CardContent className="p-6 relative z-50">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+      <CardContent className="p-3 md:p-6 relative z-50">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mb-4 md:mb-6">
+          <h3 className="text-base md:text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
             🔎 Filter Data
           </h3>
-          {hasActiveFilters && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={resetFilters}
-              className="text-xs"
-            >
-              <RotateCcw className="h-3 w-3 mr-1" />
-              Reset Filters
-            </Button>
-          )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-50">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 relative z-50">
           <DateRangeFilter
             minDate={minDate}
             maxDate={maxDate}
@@ -165,7 +154,7 @@ export function FilterPanel({ data, onFilterChange }: FilterPanelProps) {
         {hasActiveFilters && (
           <div className="mt-4 pt-4 border-t border-gray-200 dark:border-slate-700">
             <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-400">
+              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-400 flex-wrap">
                 <span className="font-medium">Active filters:</span>
                 {selectedWildlife.length < allWildlifeTypes.length && (
                   <span className="px-2 py-1 rounded-md bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-xs">
@@ -201,6 +190,17 @@ export function FilterPanel({ data, onFilterChange }: FilterPanelProps) {
               <div className="text-sm text-gray-500 dark:text-slate-500">
                 <div>Data range: {minDate.toLocaleDateString()} to {maxDate.toLocaleDateString()}</div>
                 <div className="mt-1">Total records: {data.length} • Filtered: {filteredCount}</div>
+              </div>
+              <div className="flex justify-start">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={resetFilters}
+                  className="text-xs mt-2"
+                >
+                  <RotateCcw className="h-3 w-3 mr-1" />
+                  Reset Filters
+                </Button>
               </div>
             </div>
           </div>

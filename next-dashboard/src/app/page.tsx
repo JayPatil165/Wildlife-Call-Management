@@ -22,7 +22,7 @@ export default function Home() {
   const [activeChart, setActiveChart] = useState<ChartType>('heatmap')
   const [activeTab, setActiveTab] = useState('overview')
   const [autoRefresh, setAutoRefresh] = useState(true)
-  const [refreshInterval, setRefreshInterval] = useState(5) // minutes
+  const [refreshInterval, setRefreshInterval] = useState(2) // minutes
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date())
   const [isMounted, setIsMounted] = useState(false)
   const chartDisplayRef = useRef<HTMLDivElement>(null)
@@ -149,81 +149,83 @@ export default function Home() {
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-100/40 dark:bg-emerald-500/5 rounded-full blur-3xl -z-10"></div>
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-teal-100/30 dark:bg-teal-500/5 rounded-full blur-3xl -z-10"></div>
       
-      <main className="relative flex flex-1 flex-col gap-8 p-6 lg:gap-10 lg:p-10 max-w-[1600px] mx-auto overflow-visible">
+      <main className="relative flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6 lg:gap-10 lg:p-10 max-w-[1600px] mx-auto overflow-visible">
         {/* Enhanced Header */}
-        <div className="flex items-center justify-between no-print">
-          <div className="space-y-2">
+        <div className="flex flex-col gap-4 no-print">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <button 
                 onClick={() => setActiveTab('overview')}
-                className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 dark:from-emerald-600 dark:to-teal-700 rounded-2xl shadow-lg shadow-emerald-500/30 dark:shadow-emerald-500/20 transform hover:scale-105 transition-transform cursor-pointer"
+                className="p-2 md:p-3 bg-gradient-to-br from-emerald-500 to-teal-600 dark:from-emerald-600 dark:to-teal-700 rounded-xl md:rounded-2xl shadow-lg shadow-emerald-500/30 dark:shadow-emerald-500/20 transform hover:scale-105 transition-transform cursor-pointer flex-shrink-0"
               >
-                <span className="text-3xl">🦁</span>
+                <span className="text-2xl md:text-3xl">🦁</span>
               </button>
-              <div>
-                <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
+              <div className="min-w-0">
+                <h1 className="text-2xl md:text-4xl font-bold tracking-tight bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent truncate">
                   Wildlife Incident Dashboard
                 </h1>
-                <p className="text-sm text-gray-600 dark:text-slate-400 font-medium mt-1 flex items-center gap-2">
+                <p className="text-xs md:text-sm text-gray-600 dark:text-slate-400 font-medium mt-1 flex items-center gap-2">
                   <span className="inline-block w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                  Forest Department · Real-time Monitoring & Analytics
+                  <span className="hidden sm:inline">Forest Department · Real-time Monitoring & Analytics</span>
+                  <span className="sm:hidden">Real-time Monitoring</span>
                 </p>
               </div>
             </div>
-          </div>
-          <div className="flex items-center gap-3">
-            {/* Auto-refresh controls */}
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800">
-              <input
-                type="checkbox"
-                id="autoRefresh"
-                checked={autoRefresh}
-                onChange={(e) => setAutoRefresh(e.target.checked)}
-                className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
-              />
-              <label htmlFor="autoRefresh" className="text-sm font-medium text-gray-700 dark:text-slate-300">
-                Auto-refresh
-              </label>
-              {autoRefresh && (
-                <>
-                  <select
-                    value={refreshInterval}
-                    onChange={(e) => setRefreshInterval(Number(e.target.value))}
-                    className="ml-2 text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-200 focus:ring-emerald-500 focus:border-emerald-500"
-                  >
-                    <option value={1}>1 min</option>
-                    <option value={2}>2 min</option>
-                    <option value={5}>5 min</option>
-                    <option value={10}>10 min</option>
-                    <option value={15}>15 min</option>
-                    <option value={30}>30 min</option>
-                  </select>
-                  {isMounted && (
-                    <span className="text-xs text-gray-500 dark:text-slate-400 ml-2">
-                      Updated: {(() => {
-                        const hours = lastRefresh.getHours()
-                        const minutes = lastRefresh.getMinutes()
-                        const seconds = lastRefresh.getSeconds()
-                        const hour12 = hours % 12 || 12
-                        const ampm = hours >= 12 ? 'PM' : 'AM'
-                        return `${String(hour12).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} ${ampm}`
-                      })()}
-                    </span>
-                  )}
-                </>
-              )}
+            
+            {/* Controls - All in one line on mobile, aligned right on desktop */}
+            <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap justify-center sm:justify-start">
+              {/* Auto-refresh controls */}
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800">
+                <input
+                  type="checkbox"
+                  id="autoRefresh"
+                  checked={autoRefresh}
+                  onChange={(e) => setAutoRefresh(e.target.checked)}
+                  className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
+                />
+                <label htmlFor="autoRefresh" className="text-xs sm:text-sm font-medium text-gray-700 dark:text-slate-300 whitespace-nowrap">
+                  Auto-refresh
+                </label>
+                {autoRefresh && (
+                  <>
+                    <select
+                      value={refreshInterval}
+                      onChange={(e) => setRefreshInterval(Number(e.target.value))}
+                      className="text-xs sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-200 focus:ring-emerald-500 focus:border-emerald-500"
+                    >
+                      <option value={1}>1 min</option>
+                      <option value={2}>2 min</option>
+                      <option value={5}>5 min</option>
+                      <option value={10}>10 min</option>
+                      <option value={15}>15 min</option>
+                    </select>
+                    {isMounted && (
+                      <span className="hidden md:inline text-xs text-gray-500 dark:text-slate-400">
+                        Updated: {(() => {
+                          const hours = lastRefresh.getHours()
+                          const minutes = lastRefresh.getMinutes()
+                          const seconds = lastRefresh.getSeconds()
+                          const hour12 = hours % 12 || 12
+                          const ampm = hours >= 12 ? 'PM' : 'AM'
+                          return `${String(hour12).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} ${ampm}`
+                        })()}
+                      </span>
+                    )}
+                  </>
+                )}
+              </div>
+              <Button 
+                onClick={loadData} 
+                disabled={loading} 
+                variant="outline" 
+                size="default"
+                className="shadow-sm hover:shadow-md transition-all duration-300 border-gray-300 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-600 dark:bg-slate-800 dark:text-slate-200 px-3"
+              >
+                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''} sm:mr-2`} />
+                <span className="hidden sm:inline">Refresh</span>
+              </Button>
+              <ThemeToggle />
             </div>
-            <Button 
-              onClick={loadData} 
-              disabled={loading} 
-              variant="outline" 
-              size="lg"
-              className="shadow-sm hover:shadow-md transition-all duration-300 border-gray-300 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-600 dark:bg-slate-800 dark:text-slate-200"
-            >
-              <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-              Refresh
-            </Button>
-            <ThemeToggle />
           </div>
         </div>
 
@@ -397,28 +399,28 @@ export default function Home() {
 
         {/* Enhanced Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <div className="flex items-center justify-center bg-white dark:bg-slate-800/50 dark:backdrop-blur-sm rounded-xl p-2 border border-gray-200 dark:border-slate-700 shadow-sm no-print">
-            <TabsList className="bg-gray-100 dark:bg-slate-700/50 h-12">
+          <div className="flex items-center justify-center bg-white dark:bg-slate-800/50 dark:backdrop-blur-sm rounded-xl p-2 border border-gray-200 dark:border-slate-700 shadow-sm no-print overflow-x-auto">
+            <TabsList className="bg-gray-100 dark:bg-slate-700/50 h-auto min-h-[44px] w-full sm:w-auto">
               <TabsTrigger 
                 value="overview"
-                className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:shadow-emerald-500/30 transition-all duration-300 px-6 rounded-lg text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white"
+                className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:shadow-emerald-500/30 transition-all duration-300 px-3 sm:px-6 py-2 rounded-lg text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white flex-1 sm:flex-none text-xs sm:text-sm"
               >
-                <Activity className="h-4 w-4 mr-2" />
-                Overview
+                <Activity className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Overview</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="charts"
-                className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:shadow-emerald-500/30 transition-all duration-300 px-6 rounded-lg text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white"
+                className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:shadow-emerald-500/30 transition-all duration-300 px-3 sm:px-6 py-2 rounded-lg text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white flex-1 sm:flex-none text-xs sm:text-sm"
               >
-                <BarChart3 className="h-4 w-4 mr-2" />
-                Charts
+                <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Charts</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="raw-data"
-                className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:shadow-emerald-500/30 transition-all duration-300 px-6 rounded-lg text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white"
+                className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:shadow-emerald-500/30 transition-all duration-300 px-3 sm:px-6 py-2 rounded-lg text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white flex-1 sm:flex-none text-xs sm:text-sm"
               >
-                <Database className="h-4 w-4 mr-2" />
-                Raw Data
+                <Database className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Raw Data</span>
               </TabsTrigger>
             </TabsList>
           </div>

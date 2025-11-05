@@ -301,19 +301,19 @@ export function DataTable({ data, loading }: DataTableProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Search and Filter Bar */}
-      <div ref={tableTopRef} className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-gray-50 dark:bg-slate-700/50 p-4 rounded-xl border border-gray-200 dark:border-slate-600 scroll-mt-20">
+      <div ref={tableTopRef} className="flex flex-col gap-3 sm:flex-row sm:gap-4 items-stretch sm:items-center justify-between bg-gray-50 dark:bg-slate-700/50 p-3 md:p-4 rounded-xl border border-gray-200 dark:border-slate-600 scroll-mt-20">
         <div className="relative flex-1 w-full sm:max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-slate-500" />
           <Input
-            placeholder="Search wildlife, taluka, village, caller, or incident..."
+            placeholder="Search wildlife, taluka, village..."
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value)
               setCurrentPage(1)
             }}
-            className="pl-10 pr-10 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 focus:border-emerald-500 dark:focus:border-emerald-600 rounded-lg shadow-sm dark:text-white"
+            className="pl-10 pr-10 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 focus:border-emerald-500 dark:focus:border-emerald-600 rounded-lg shadow-sm dark:text-white text-sm"
           />
           {searchQuery && (
             <button
@@ -333,7 +333,7 @@ export function DataTable({ data, loading }: DataTableProps) {
             size="sm" 
             onClick={() => setShowExportMenu(!showExportMenu)}
             disabled={filteredData.length === 0}
-            className="shadow-sm hover:shadow-md transition-all duration-300 border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 hover:border-emerald-500 dark:hover:border-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="shadow-sm hover:shadow-md transition-all duration-300 border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 hover:border-emerald-500 dark:hover:border-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto text-sm"
           >
             <Download className="h-4 w-4 mr-2" />
             Export ({filteredData.length})
@@ -379,13 +379,13 @@ export function DataTable({ data, loading }: DataTableProps) {
       </div>
 
       {/* Stats Row */}
-      <div className="flex items-center justify-between text-sm bg-white dark:bg-slate-800/50 dark:backdrop-blur-sm p-4 rounded-xl border border-gray-200 dark:border-slate-700">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 text-xs sm:text-sm bg-white dark:bg-slate-800/50 dark:backdrop-blur-sm p-3 md:p-4 rounded-xl border border-gray-200 dark:border-slate-700">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-4">
           <span className="font-medium text-gray-700 dark:text-slate-300">
-            Showing <span className="text-emerald-600 dark:text-emerald-400 font-bold">{startIndex + 1}-{Math.min(endIndex, filteredData.length)}</span> of <span className="text-emerald-600 dark:text-emerald-400 font-bold">{filteredData.length.toLocaleString()}</span> records
+            Showing <span className="text-emerald-600 dark:text-emerald-400 font-bold">{startIndex + 1}-{Math.min(endIndex, filteredData.length)}</span> of <span className="text-emerald-600 dark:text-emerald-400 font-bold">{filteredData.length.toLocaleString()}</span>
           </span>
           {searchQuery && (
-            <span className="text-xs px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded-full font-medium">
+            <span className="text-[10px] sm:text-xs px-2 sm:px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded-full font-medium">
               Filtered from {data.length.toLocaleString()} total
             </span>
           )}
@@ -398,12 +398,12 @@ export function DataTable({ data, loading }: DataTableProps) {
           <Table>
             <TableHeader>
               <TableRow className="bg-emerald-600 dark:bg-gradient-to-r dark:from-emerald-600 dark:to-teal-700 hover:bg-emerald-700 dark:hover:from-emerald-700 dark:hover:to-teal-800 border-b border-emerald-700 dark:border-emerald-800">
-                <TableHead className="text-white font-bold w-[180px]">Timestamp</TableHead>
-                <TableHead className="text-white font-bold">Wildlife Type</TableHead>
-                <TableHead className="text-white font-bold">Taluka</TableHead>
-                <TableHead className="text-white font-bold">Village</TableHead>
-                <TableHead className="text-white font-bold min-w-[200px]">Incident Type</TableHead>
-                <TableHead className="text-white font-bold w-[140px]">Caller Name</TableHead>
+                <TableHead className="text-white font-bold w-[140px] sm:w-[180px] text-xs sm:text-sm">Timestamp</TableHead>
+                <TableHead className="text-white font-bold min-w-[120px] text-xs sm:text-sm">Wildlife Type</TableHead>
+                <TableHead className="text-white font-bold min-w-[100px] text-xs sm:text-sm">Taluka</TableHead>
+                <TableHead className="text-white font-bold min-w-[100px] text-xs sm:text-sm">Village</TableHead>
+                <TableHead className="text-white font-bold min-w-[180px] sm:min-w-[200px] text-xs sm:text-sm">Incident Type</TableHead>
+                <TableHead className="text-white font-bold w-[100px] sm:w-[140px] text-xs sm:text-sm">Caller Name</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -419,19 +419,19 @@ export function DataTable({ data, loading }: DataTableProps) {
                     key={startIndex + index} 
                     className="border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors duration-200"
                   >
-                    <TableCell className="font-mono text-xs bg-gray-50 dark:bg-slate-800/50">
+                    <TableCell className="font-mono text-[10px] sm:text-xs bg-gray-50 dark:bg-slate-800/50 p-2 sm:p-4">
                       <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1 sm:gap-2">
                           <span className="font-semibold text-gray-900 dark:text-slate-200">
                             {formatDate(row.Timestamp)}
                           </span>
                           {showBadge && (
-                            <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium whitespace-nowrap ${
+                            <span className={`inline-flex items-center gap-0.5 px-1 sm:px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-medium whitespace-nowrap ${
                               isDaytime 
                                 ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' 
                                 : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
                             }`}>
-                              {isDaytime ? <Sun className="h-2.5 w-2.5" /> : <Moon className="h-2.5 w-2.5" />}
+                              {isDaytime ? <Sun className="h-2 w-2 sm:h-2.5 sm:w-2.5" /> : <Moon className="h-2 w-2 sm:h-2.5 sm:w-2.5" />}
                               {isDaytime ? 'Day' : 'Night'}
                             </span>
                           )}
@@ -441,28 +441,28 @@ export function DataTable({ data, loading }: DataTableProps) {
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell>
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                    <TableCell className="p-2 sm:p-4">
+                      <span className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                         {row['कोणत्या वन्यप्राण्याची नोंद करू इच्छिता:']}
                       </span>
                     </TableCell>
-                    <TableCell>
-                      <span className="font-medium text-gray-900 dark:text-slate-200">
+                    <TableCell className="p-2 sm:p-4">
+                      <span className="font-medium text-gray-900 dark:text-slate-200 text-xs sm:text-sm">
                         {row['तालुका:']}
                       </span>
                     </TableCell>
-                    <TableCell>
-                      <span className="text-gray-700 dark:text-slate-300">
+                    <TableCell className="p-2 sm:p-4">
+                      <span className="text-gray-700 dark:text-slate-300 text-xs sm:text-sm">
                         {row['गावाचे नाव:']}
                       </span>
                     </TableCell>
-                    <TableCell className="max-w-md">
-                      <div className="line-clamp-2 text-sm text-gray-700 dark:text-slate-300" title={row['वन्यजीवांच्या बाबत आपण काय कळवू इच्छिता याची नोंद करा:']}>
+                    <TableCell className="max-w-[200px] sm:max-w-md p-2 sm:p-4">
+                      <div className="line-clamp-2 text-[11px] sm:text-sm text-gray-700 dark:text-slate-300" title={row['वन्यजीवांच्या बाबत आपण काय कळवू इच्छिता याची नोंद करा:']}>
                         {row['वन्यजीवांच्या बाबत आपण काय कळवू इच्छिता याची नोंद करा:']}
                       </div>
                     </TableCell>
-                    <TableCell>
-                      <span className="font-medium text-gray-900 dark:text-slate-200">
+                    <TableCell className="p-2 sm:p-4">
+                      <span className="font-medium text-gray-900 dark:text-slate-200 text-xs sm:text-sm">
                         {row['संपर्क करणाऱ्याचे नाव:']}
                       </span>
                     </TableCell>
@@ -475,29 +475,29 @@ export function DataTable({ data, loading }: DataTableProps) {
       </div>
 
       {/* Pagination Controls at Bottom */}
-      <div className="flex items-center justify-center gap-2 bg-white dark:bg-slate-800/50 dark:backdrop-blur-sm p-4 rounded-xl border border-gray-200 dark:border-slate-700">
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 bg-white dark:bg-slate-800/50 dark:backdrop-blur-sm p-3 md:p-4 rounded-xl border border-gray-200 dark:border-slate-700">
         <Button
           variant="outline"
           size="sm"
           onClick={() => goToPage(currentPage - 1)}
           disabled={currentPage === 1}
-          className="shadow-sm hover:shadow-md transition-all duration-300 border-gray-300 dark:border-slate-600 disabled:opacity-50 dark:bg-slate-800 dark:text-slate-200"
+          className="shadow-sm hover:shadow-md transition-all duration-300 border-gray-300 dark:border-slate-600 disabled:opacity-50 dark:bg-slate-800 dark:text-slate-200 w-full sm:w-auto text-xs sm:text-sm"
         >
-          <ChevronLeft className="h-4 w-4 mr-1" />
+          <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
           Previous
         </Button>
-        <div className="flex items-center gap-2 px-4 py-2 bg-emerald-600 dark:bg-gradient-to-r dark:from-emerald-600 dark:to-teal-700 text-white rounded-lg shadow-md font-semibold">
-          <span className="text-sm">Page {currentPage} of {totalPages}</span>
+        <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-emerald-600 dark:bg-gradient-to-r dark:from-emerald-600 dark:to-teal-700 text-white rounded-lg shadow-md font-semibold">
+          <span className="text-xs sm:text-sm">Page {currentPage} of {totalPages}</span>
         </div>
         <Button
           variant="outline"
           size="sm"
           onClick={() => goToPage(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="shadow-sm hover:shadow-md transition-all duration-300 border-gray-300 dark:border-slate-600 disabled:opacity-50 dark:bg-slate-800 dark:text-slate-200"
+          className="shadow-sm hover:shadow-md transition-all duration-300 border-gray-300 dark:border-slate-600 disabled:opacity-50 dark:bg-slate-800 dark:text-slate-200 w-full sm:w-auto text-xs sm:text-sm"
         >
           Next
-          <ChevronRight className="h-4 w-4 ml-1" />
+          <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 ml-1" />
         </Button>
       </div>
     </div>
