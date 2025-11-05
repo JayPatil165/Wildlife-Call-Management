@@ -3,7 +3,7 @@
 import { useMemo } from 'react'
 import { useTheme } from 'next-themes'
 import { PlotlyWrapper } from './plotly-wrapper'
-import { getLayout, plotConfig, colorPalette } from '@/lib/plotly-config'
+import { getLayout, plotConfig, colorPalette, getResponsiveDimensions } from '@/lib/plotly-config'
 import { IncidentData } from '@/types'
 
 interface TalukaDistributionChartProps {
@@ -13,6 +13,7 @@ interface TalukaDistributionChartProps {
 export function TalukaDistributionChart({ data }: TalukaDistributionChartProps) {
   const { theme } = useTheme()
   const isDark = theme === 'dark'
+  const responsive = getResponsiveDimensions()
 
   const chartData = useMemo(() => {
     // Count incidents by taluka
@@ -47,17 +48,23 @@ export function TalukaDistributionChart({ data }: TalukaDistributionChartProps) 
         textposition: 'auto' as const,
         hovertemplate: '<b>%{label}</b><br>Incidents: %{value}<br>Percentage: %{percent}<extra></extra>',
         hole: 0.3, // Makes it a donut chart for better aesthetics
+        textfont: {
+          size: responsive.isMobile ? 9 : 11,
+        },
       },
     ]
-  }, [data, isDark])
+  }, [data, isDark, responsive])
 
   const layout = useMemo(
     () =>
       getLayout(isDark, {
         title: {
           text: 'Incident Distribution by Taluka',
+          font: {
+            size: responsive.titleFontSize,
+          },
         },
-        height: 500,
+        height: responsive.isMobile ? 450 : 600,
         showlegend: true,
         legend: {
           orientation: 'v',
@@ -65,10 +72,18 @@ export function TalukaDistributionChart({ data }: TalukaDistributionChartProps) 
           y: 0.5,
           xanchor: 'left',
           x: 1.02,
+          font: {
+            size: responsive.isMobile ? 9 : 11,
+          },
         },
-        margin: { t: 50, b: 20, l: 20, r: 150 },
+        margin: { 
+          t: 60, 
+          b: responsive.isMobile ? 40 : 60, 
+          l: responsive.isMobile ? 40 : 80, 
+          r: responsive.isMobile ? 120 : 200 
+        },
       }),
-    [isDark]
+    [isDark, responsive]
   )
 
   return (
@@ -76,9 +91,9 @@ export function TalukaDistributionChart({ data }: TalukaDistributionChartProps) 
       data={chartData}
       layout={layout}
       config={plotConfig}
-      className="w-full"
+      className="w-full overflow-x-auto"
       useResizeHandler
-      style={{ width: '100%', height: '500px' }}
+      style={{ width: '100%', height: responsive.isMobile ? '450px' : '600px' }}
     />
   )
 }

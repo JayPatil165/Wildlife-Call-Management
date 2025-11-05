@@ -41,12 +41,12 @@ export function ChartDisplay({ chartType, data }: ChartDisplayProps) {
   // Helper to render chart card
   const renderChart = (title: string, ChartComponent: React.ComponentType<{ data: IncidentData[] }>) => (
     <Card className="border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 dark:backdrop-blur-sm shadow-md">
-      <CardHeader>
-        <CardTitle className="text-xl font-bold text-gray-900 dark:text-white">
+      <CardHeader className="p-4 md:p-6">
+        <CardTitle className="text-lg md:text-xl font-bold text-gray-900 dark:text-white">
           {title}
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-2 md:p-6">
         <ChartComponent data={data} />
       </CardContent>
     </Card>

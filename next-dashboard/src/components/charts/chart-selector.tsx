@@ -185,24 +185,24 @@ interface ChartSelectorProps {
 export function ChartSelector({ activeChart, onChartChange }: ChartSelectorProps) {
   return (
     <Card className="border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 dark:backdrop-blur-sm shadow-md">
-      <CardHeader>
-        <CardTitle className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+      <CardHeader className="p-4 md:p-6">
+        <CardTitle className="text-base md:text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
           📊 Chart Selection
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+      <CardContent className="p-4 md:p-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
           {chartButtons.map((chart) => (
             <Button
               key={chart.key}
               onClick={() => onChartChange(chart.key)}
               variant="outline"
-              className={`h-auto py-5 px-2 flex flex-col items-center gap-3 transition-all duration-300 border ${getColorClasses(chart.color, activeChart === chart.key)}`}
+              className={`h-auto py-3 md:py-5 px-2 flex flex-col items-center gap-2 md:gap-3 transition-all duration-300 border text-xs md:text-sm ${getColorClasses(chart.color, activeChart === chart.key)}`}
             >
               <div className="flex items-center justify-center">
                 {chart.icon}
               </div>
-              <span className="text-sm font-medium text-center leading-tight">
+              <span className="font-medium text-center leading-tight">
                 {chart.label}
               </span>
             </Button>

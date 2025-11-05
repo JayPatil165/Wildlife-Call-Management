@@ -126,3 +126,27 @@ export const getLayout = (isDark: boolean, customLayout?: Partial<Layout>): Part
   const baseLayout = isDark ? darkLayout : lightLayout
   return { ...baseLayout, ...customLayout }
 }
+
+// Helper function to get responsive dimensions
+export const getResponsiveDimensions = () => {
+  if (typeof window === 'undefined') {
+    return { height: 600, isMobile: false }
+  }
+  
+  const isMobile = window.innerWidth < 768
+  const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024
+  
+  return {
+    height: isMobile ? 400 : isTablet ? 500 : 600,
+    isMobile,
+    isTablet,
+    tickFontSize: isMobile ? 8 : 10,
+    titleFontSize: isMobile ? 12 : 14,
+    margin: {
+      t: 50,
+      b: isMobile ? 80 : 120,
+      l: isMobile ? 40 : 60,
+      r: isMobile ? 20 : 40,
+    }
+  }
+}

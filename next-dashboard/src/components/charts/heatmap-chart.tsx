@@ -3,7 +3,7 @@
 import { useMemo } from 'react'
 import { useTheme } from 'next-themes'
 import { PlotlyWrapper } from './plotly-wrapper'
-import { getLayout, plotConfig } from '@/lib/plotly-config'
+import { getLayout, plotConfig, getResponsiveDimensions } from '@/lib/plotly-config'
 import { IncidentData } from '@/types'
 
 interface HeatmapChartProps {
@@ -13,6 +13,7 @@ interface HeatmapChartProps {
 export function HeatmapChart({ data }: HeatmapChartProps) {
   const { theme } = useTheme()
   const isDark = theme === 'dark'
+  const responsive = getResponsiveDimensions()
 
   const chartData = useMemo(() => {
     // Group by taluka and wildlife type
@@ -40,15 +41,16 @@ export function HeatmapChart({ data }: HeatmapChartProps) {
       return acc
     }, {} as Record<string, number>)
 
-    // Get top 15 of each for better visualization
+    // Get top 15 of each for better visualization (fewer on mobile)
+    const limit = responsive.isMobile ? 10 : 15
     const talukas = Object.entries(talukaCounts)
       .sort(([, a], [, b]) => b - a)
-      .slice(0, 15)
+      .slice(0, limit)
       .map(([t]) => t)
 
     const wildlifeTypes = Object.entries(wildlifeCounts)
       .sort(([, a], [, b]) => b - a)
-      .slice(0, 15)
+      .slice(0, limit)
       .map(([w]) => w)
 
     // Create the z-matrix (2D array) for the heatmap
@@ -72,7 +74,7 @@ export function HeatmapChart({ data }: HeatmapChartProps) {
         texttemplate: '%{text}',
         textfont: {
           color: isDark ? '#f1f5f9' : '#1e293b',
-          size: 10,
+          size: responsive.isMobile ? 8 : 10,
         },
         colorscale: [
           [0, isDark ? '#0f172a' : '#f1f5f9'],
@@ -90,17 +92,21 @@ export function HeatmapChart({ data }: HeatmapChartProps) {
           },
           tickfont: {
             color: isDark ? '#cbd5e1' : '#6b7280',
+            size: responsive.isMobile ? 8 : 10,
           },
         },
       },
     ]
-  }, [data, isDark])
+  }, [data, isDark, responsive])
 
   const layout = useMemo(
     () =>
       getLayout(isDark, {
         title: {
           text: 'Incident Heatmap: Taluka vs Wildlife Type',
+          font: {
+            size: responsive.titleFontSize,
+          },
         },
         xaxis: {
           title: {
@@ -109,17 +115,28 @@ export function HeatmapChart({ data }: HeatmapChartProps) {
           tickangle: -45,
           automargin: true,
           side: 'bottom',
+          tickfont: {
+            size: responsive.tickFontSize,
+          },
         },
         yaxis: {
           title: {
             text: 'Taluka',
           },
           automargin: true,
+          tickfont: {
+            size: responsive.tickFontSize,
+          },
         },
-        height: 600,
-        margin: { t: 50, b: 150, l: 150, r: 100 },
+        height: responsive.height + 100,
+        margin: { 
+          t: 50, 
+          b: responsive.isMobile ? 80 : 120, 
+          l: responsive.isMobile ? 80 : 120, 
+          r: responsive.isMobile ? 40 : 80 
+        },
       }),
-    [isDark]
+    [isDark, responsive]
   )
 
   return (
@@ -127,9 +144,9 @@ export function HeatmapChart({ data }: HeatmapChartProps) {
       data={chartData}
       layout={layout}
       config={plotConfig}
-      className="w-full"
+      className="w-full overflow-x-auto"
       useResizeHandler
-      style={{ width: '100%', height: '600px' }}
+      style={{ width: '100%', height: `${responsive.height + 100}px` }}
     />
   )
 }

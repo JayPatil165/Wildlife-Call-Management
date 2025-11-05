@@ -3,7 +3,7 @@
 import { useMemo } from 'react'
 import { useTheme } from 'next-themes'
 import { PlotlyWrapper } from './plotly-wrapper'
-import { getLayout, plotConfig, colorPalette } from '@/lib/plotly-config'
+import { getLayout, plotConfig, colorPalette, getResponsiveDimensions } from '@/lib/plotly-config'
 import { IncidentData } from '@/types'
 
 interface FrequentCallersChartProps {
@@ -13,6 +13,7 @@ interface FrequentCallersChartProps {
 export function FrequentCallersChart({ data }: FrequentCallersChartProps) {
   const { theme } = useTheme()
   const isDark = theme === 'dark'
+  const responsive = getResponsiveDimensions()
 
   const chartData = useMemo(() => {
     // Count reports by caller
@@ -56,22 +57,35 @@ export function FrequentCallersChart({ data }: FrequentCallersChartProps) {
       getLayout(isDark, {
         title: {
           text: 'Top 10 Frequent Callers',
+          font: {
+            size: responsive.titleFontSize,
+          },
         },
         xaxis: {
           title: {
             text: 'Number of Reports',
+          },
+          tickfont: {
+            size: responsive.tickFontSize,
           },
         },
         yaxis: {
           title: {
             text: 'Caller Name',
           },
-          automargin: true,
+          tickfont: {
+            size: responsive.tickFontSize,
+          },
         },
-        height: 500,
-        margin: { t: 50, b: 60, l: 200, r: 20 },
+        height: responsive.isMobile ? 400 : 500,
+        margin: { 
+          t: 60, 
+          b: responsive.isMobile ? 50 : 60, 
+          l: responsive.isMobile ? 120 : 200, 
+          r: responsive.isMobile ? 20 : 40 
+        },
       }),
-    [isDark]
+    [isDark, responsive]
   )
 
   return (
@@ -79,9 +93,9 @@ export function FrequentCallersChart({ data }: FrequentCallersChartProps) {
       data={chartData}
       layout={layout}
       config={plotConfig}
-      className="w-full"
+      className="w-full overflow-x-auto"
       useResizeHandler
-      style={{ width: '100%', height: '500px' }}
+      style={{ width: '100%', height: responsive.isMobile ? '400px' : '500px' }}
     />
   )
 }

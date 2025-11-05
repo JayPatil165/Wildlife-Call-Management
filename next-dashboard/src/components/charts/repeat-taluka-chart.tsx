@@ -3,7 +3,7 @@
 import { useMemo } from 'react'
 import { useTheme } from 'next-themes'
 import { PlotlyWrapper } from './plotly-wrapper'
-import { getLayout, plotConfig, colorPalette } from '@/lib/plotly-config'
+import { getLayout, plotConfig, colorPalette, getResponsiveDimensions } from '@/lib/plotly-config'
 import { IncidentData } from '@/types'
 import { parseIncidentDate } from '@/utils/date-parser'
 
@@ -14,6 +14,7 @@ interface RepeatTalukaChartProps {
 export function RepeatTalukaChart({ data }: RepeatTalukaChartProps) {
   const { theme } = useTheme()
   const isDark = theme === 'dark'
+  const responsive = getResponsiveDimensions()
 
   const chartData = useMemo(() => {
     // Group by date and taluka
@@ -70,46 +71,60 @@ export function RepeatTalukaChart({ data }: RepeatTalukaChartProps) {
         },
         marker: {
           color: colorPalette.primary[index % colorPalette.primary.length],
-          size: 6,
+          size: responsive.isMobile ? 4 : 6,
         },
         hovertemplate: `<b>${taluka}</b><br>%{x}<br>Incidents: %{y}<extra></extra>`,
       }
     })
-  }, [data])
+  }, [data, responsive])
 
   const layout = useMemo(
     () =>
       getLayout(isDark, {
         title: {
           text: 'Repeat Taluka Analysis (All Talukas)',
+          font: {
+            size: responsive.titleFontSize,
+          },
         },
         xaxis: {
           title: {
             text: 'Date',
           },
           tickangle: -45,
-          automargin: true,
+          tickfont: {
+            size: responsive.tickFontSize,
+          },
         },
         yaxis: {
           title: {
             text: 'Daily Incident Count',
           },
+          tickfont: {
+            size: responsive.tickFontSize,
+          },
         },
-        height: 600,
-        margin: { t: 50, b: 100, l: 60, r: 200 },
-        showlegend: true,
-        legend: {
+        height: responsive.isMobile ? 500 : 600,
+        margin: { 
+          t: 60, 
+          b: responsive.isMobile ? 100 : 120, 
+          l: responsive.isMobile ? 50 : 70, 
+          r: responsive.isMobile ? 10 : 20 
+        },
+        showlegend: !responsive.isMobile,
+        legend: responsive.isMobile ? {} : {
           orientation: 'v',
           yanchor: 'top',
           y: 1,
-          xanchor: 'left',
-          x: 1.02,
+          xanchor: 'right',
+          x: 0.99,
           font: {
-            size: 10,
+            size: 9,
           },
+          bgcolor: isDark ? 'rgba(30, 41, 59, 0.8)' : 'rgba(255, 255, 255, 0.8)',
         },
       }),
-    [isDark]
+    [isDark, responsive]
   )
 
   return (
@@ -117,9 +132,9 @@ export function RepeatTalukaChart({ data }: RepeatTalukaChartProps) {
       data={chartData}
       layout={layout}
       config={plotConfig}
-      className="w-full"
+      className="w-full overflow-x-auto"
       useResizeHandler
-      style={{ width: '100%', height: '600px' }}
+      style={{ width: '100%', height: responsive.isMobile ? '500px' : '600px' }}
     />
   )
 }

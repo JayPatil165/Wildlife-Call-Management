@@ -3,7 +3,7 @@
 import { useMemo } from 'react'
 import { useTheme } from 'next-themes'
 import { PlotlyWrapper } from './plotly-wrapper'
-import { getLayout, plotConfig, colorPalette } from '@/lib/plotly-config'
+import { getLayout, plotConfig, colorPalette, getResponsiveDimensions } from '@/lib/plotly-config'
 import { IncidentData } from '@/types'
 
 interface WildlifeIncidentsChartProps {
@@ -13,6 +13,7 @@ interface WildlifeIncidentsChartProps {
 export function WildlifeIncidentsChart({ data }: WildlifeIncidentsChartProps) {
   const { theme } = useTheme()
   const isDark = theme === 'dark'
+  const responsive = getResponsiveDimensions()
 
   const chartData = useMemo(() => {
     // Count incidents by wildlife type
@@ -57,6 +58,9 @@ export function WildlifeIncidentsChart({ data }: WildlifeIncidentsChartProps) {
       getLayout(isDark, {
         title: {
           text: 'Wildlife Incidents by Species (All)',
+          font: {
+            size: responsive.titleFontSize,
+          },
         },
         xaxis: {
           title: {
@@ -65,7 +69,7 @@ export function WildlifeIncidentsChart({ data }: WildlifeIncidentsChartProps) {
           tickangle: -45,
           automargin: true,
           tickfont: {
-            size: 10,
+            size: responsive.tickFontSize,
           },
         },
         yaxis: {
@@ -73,10 +77,10 @@ export function WildlifeIncidentsChart({ data }: WildlifeIncidentsChartProps) {
             text: 'Number of Incidents',
           },
         },
-        height: 600,
-        margin: { t: 50, b: 150, l: 60, r: 20 },
+        height: responsive.height,
+        margin: responsive.margin,
       }),
-    [isDark]
+    [isDark, responsive]
   )
 
   return (
@@ -84,9 +88,9 @@ export function WildlifeIncidentsChart({ data }: WildlifeIncidentsChartProps) {
       data={chartData}
       layout={layout}
       config={plotConfig}
-      className="w-full"
+      className="w-full overflow-x-auto"
       useResizeHandler
-      style={{ width: '100%', height: '600px' }}
+      style={{ width: '100%', height: `${responsive.height}px` }}
     />
   )
 }
