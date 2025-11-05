@@ -1,117 +1,60 @@
 # Wildlife Call Management System
 
-A comprehensive dashboard system for managing and visualizing wildlife incident data, built with both Next.js (React) and Streamlit (Python).
+A comprehensive dashboard for visualizing and analyzing wildlife incident data to help forest departments and wildlife management teams make informed decisions.
 
-## Project Structure
+## What This Project Does
 
-This repository contains two separate dashboard implementations:
+This system provides interactive dashboards that transform raw wildlife incident data into actionable insights through:
 
-- **`next-dashboard/`** - Modern Next.js/React dashboard (main branch)
-- **`Streamlit Dashboard/`** - Python Streamlit dashboard (python branch)
+- **Wildlife Distribution Analysis** - Identify which species are involved in most incidents
+- **Geographic Hotspot Mapping** - Discover which talukas and villages need immediate attention
+- **Temporal Pattern Recognition** - Understand when incidents occur most frequently (monthly, daily, hourly)
+- **Incident Type Breakdown** - Analyze types of human-wildlife conflicts
+- **Response Tracking** - Monitor frequent callers and repeat incident locations
+- **Trend Analysis** - Track changes in incident patterns over time
 
-## Branches
+## Why It Matters
 
-- `main` - Next.js/React implementation
-- `python` - Streamlit/Python implementation
+Wildlife incident management teams can use these dashboards to:
 
-## Setup Instructions
+- **Prioritize Resources** - Deploy teams to high-incident areas
+- **Plan Interventions** - Schedule preventive measures during peak times
+- **Track Effectiveness** - Monitor if interventions reduce repeat incidents
+- **Generate Reports** - Export data for administrative reporting
+- **Quick Decision Making** - Filter and analyze data in real-time
 
-### Prerequisites
+## Two Implementations Available
 
-Both implementations require:
-- Google Sheets API credentials
-- A Google Sheet ID containing the wildlife incident data
+This repository provides two dashboard versions to suit different preferences:
 
-### Configuration
+### 🚀 **Main Branch** - Next.js Dashboard (Recommended)
+Modern web application with dark/light themes, responsive design, and interactive Plotly charts.
 
-1. **Get Google Sheets API Credentials:**
-   - Go to [Google Cloud Console](https://console.cloud.google.com/)
-   - Create a new project or select existing one
-   - Enable Google Sheets API
-   - Create a service account and download the JSON credentials file
-   - Share your Google Sheet with the service account email
+### 🐍 **Python Branch** - Streamlit Dashboard  
+Python-based dashboard with session management and familiar analytics workflow.
 
-2. **Configure Credentials:**
-   
-   For **Next.js Dashboard**:
-   ```bash
-   cd next-dashboard
-   cp credentials.json.example credentials.json
-   cp sheetid.txt.example sheetid.txt
-   # Edit both files with your actual credentials and sheet ID
-   ```
+Both dashboards connect to the same Google Sheets data source and provide similar analytical capabilities.
 
-   For **Streamlit Dashboard**:
-   ```bash
-   cd "Streamlit Dashboard/session-wise-rendering"
-   cp credentials.json.example credentials.json
-   cp sheetid.txt.example sheetid.txt
-   # Edit both files with your actual credentials and sheet ID
-   ```
+## Quick Start
 
-### Next.js Dashboard (main branch)
+See **[SETUP.md](./SETUP.md)** for complete installation and configuration instructions.
 
+## Repository Structure
+
+- **main branch** - Contains Next.js/React dashboard
+- **python branch** - Contains Streamlit/Python dashboard
+
+Switch branches to access different implementations:
 ```bash
-cd next-dashboard
-npm install
-npm run dev
+git checkout main    # Next.js dashboard
+git checkout python  # Streamlit dashboard
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+## Technologies
 
-**Features:**
-- Interactive charts with Plotly
-- Dark/Light theme support
-- Responsive design with Tailwind CSS
-- Real-time data filtering
-- Multiple chart types (heatmaps, trends, distributions)
+**Next.js Dashboard:** Next.js 16, React 19, TypeScript, Tailwind CSS, Plotly.js  
+**Streamlit Dashboard:** Python 3.x, Streamlit, Pandas, Plotly
 
-### Streamlit Dashboard (python branch)
+## Support
 
-```bash
-cd "Streamlit Dashboard/session-wise-rendering"
-pip install -r requirements.txt
-streamlit run app.py
-```
-
-**Features:**
-- Python-based analytics
-- Interactive filters
-- Multiple visualization types
-- Session-based state management
-
-## Important Notes
-
-⚠️ **Never commit sensitive files:**
-- `credentials.json` - Contains your Google API credentials
-- `sheetid.txt` - Contains your Google Sheet ID
-
-These files are listed in `.gitignore` and example files are provided instead.
-
-## Technologies Used
-
-### Next.js Dashboard
-- Next.js 16
-- React 19
-- TypeScript
-- Tailwind CSS
-- Plotly.js
-- shadcn/ui components
-
-### Streamlit Dashboard
-- Python 3.x
-- Streamlit
-- Pandas
-- Plotly
-- Google Sheets API
-
-## Contributing
-
-When contributing, ensure you:
-1. Never commit credentials or sensitive data
-2. Use the appropriate branch for your changes
-3. Test thoroughly before submitting PRs
-
-## License
-
-[Add your license here]
+For setup help or issues, please refer to [SETUP.md](./SETUP.md) or open an issue.
