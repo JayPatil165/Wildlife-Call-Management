@@ -82,8 +82,12 @@ export function formatTime(dateString: string): string {
   const date = parseIncidentDate(dateString)
   if (!date) return '--:--'
   
-  return date.toLocaleTimeString('en-IN', {
-    hour: '2-digit',
-    minute: '2-digit'
-  })
+  const hours = date.getHours()
+  const minutes = date.getMinutes()
+  
+  // Convert to 12-hour format
+  const hour12 = hours % 12 || 12
+  const ampm = hours >= 12 ? 'PM' : 'AM'
+  
+  return `${String(hour12).padStart(2, '0')}:${String(minutes).padStart(2, '0')} ${ampm}`
 }

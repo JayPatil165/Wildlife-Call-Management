@@ -10,10 +10,10 @@ import {
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { ChevronLeft, ChevronRight, Search, Download, Database, X, FileText, FileSpreadsheet, File } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Search, Download, Database, X, FileText, FileSpreadsheet, File, Sun, Moon } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { IncidentData } from '@/types'
-import { formatDate, formatTime } from '@/utils/date-parser'
+import { formatDate, formatTime, parseIncidentDate } from '@/utils/date-parser'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import * as XLSX from 'xlsx'
@@ -30,6 +30,7 @@ export function DataTable({ data, loading }: DataTableProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [showExportMenu, setShowExportMenu] = useState(false)
   const exportMenuRef = useRef<HTMLDivElement>(null)
+  const tableTopRef = useRef<HTMLDivElement>(null)
 
   // Close export menu when clicking outside
   useEffect(() => {
@@ -63,6 +64,13 @@ export function DataTable({ data, loading }: DataTableProps) {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
   const endIndex = startIndex + ITEMS_PER_PAGE
   const currentData = filteredData.slice(startIndex, endIndex)
+
+  // Scroll to top when page changes
+  useEffect(() => {
+    if (tableTopRef.current) {
+      tableTopRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [currentPage])
 
   const goToPage = (page: number) => {
     setCurrentPage(Math.max(1, Math.min(page, totalPages)))
@@ -295,7 +303,7 @@ export function DataTable({ data, loading }: DataTableProps) {
   return (
     <div className="space-y-6">
       {/* Search and Filter Bar */}
-      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-gray-50 dark:bg-slate-700/50 p-4 rounded-xl border border-gray-200 dark:border-slate-600">
+      <div ref={tableTopRef} className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-gray-50 dark:bg-slate-700/50 p-4 rounded-xl border border-gray-200 dark:border-slate-600 scroll-mt-20">
         <div className="relative flex-1 w-full sm:max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-slate-500" />
           <Input
@@ -382,31 +390,6 @@ export function DataTable({ data, loading }: DataTableProps) {
             </span>
           )}
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => goToPage(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="shadow-sm hover:shadow-md transition-all duration-300 border-gray-300 dark:border-slate-600 disabled:opacity-50 dark:bg-slate-800 dark:text-slate-200"
-          >
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            Previous
-          </Button>
-          <div className="flex items-center gap-2 px-4 py-2 bg-emerald-600 dark:bg-gradient-to-r dark:from-emerald-600 dark:to-teal-700 text-white rounded-lg shadow-md font-semibold">
-            <span className="text-sm">Page {currentPage} of {totalPages}</span>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => goToPage(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="shadow-sm hover:shadow-md transition-all duration-300 border-gray-300 dark:border-slate-600 disabled:opacity-50 dark:bg-slate-800 dark:text-slate-200"
-          >
-            Next
-            <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
-        </div>
       </div>
 
       {/* Enhanced Table */}
@@ -415,7 +398,7 @@ export function DataTable({ data, loading }: DataTableProps) {
           <Table>
             <TableHeader>
               <TableRow className="bg-emerald-600 dark:bg-gradient-to-r dark:from-emerald-600 dark:to-teal-700 hover:bg-emerald-700 dark:hover:from-emerald-700 dark:hover:to-teal-800 border-b border-emerald-700 dark:border-emerald-800">
-                <TableHead className="text-white font-bold w-[160px]">Timestamp</TableHead>
+                <TableHead className="text-white font-bold w-[180px]">Timestamp</TableHead>
                 <TableHead className="text-white font-bold">Wildlife Type</TableHead>
                 <TableHead className="text-white font-bold">Taluka</TableHead>
                 <TableHead className="text-white font-bold">Village</TableHead>
@@ -424,51 +407,98 @@ export function DataTable({ data, loading }: DataTableProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentData.map((row, index) => (
-                <TableRow 
-                  key={startIndex + index} 
-                  className="border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors duration-200"
-                >
-                  <TableCell className="font-mono text-xs bg-gray-50 dark:bg-slate-800/50">
-                    <div className="flex flex-col">
-                      <span className="font-semibold text-gray-900 dark:text-slate-200">
-                        {formatDate(row.Timestamp)}
+              {currentData.map((row, index) => {
+                const date = parseIncidentDate(row.Timestamp)
+                const isValid = date !== null && !isNaN(date.getTime())
+                const hour = isValid ? date!.getHours() : -1
+                const isDaytime = hour >= 6 && hour < 18
+                const showBadge = isValid && hour >= 0
+
+                return (
+                  <TableRow 
+                    key={startIndex + index} 
+                    className="border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors duration-200"
+                  >
+                    <TableCell className="font-mono text-xs bg-gray-50 dark:bg-slate-800/50">
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-gray-900 dark:text-slate-200">
+                            {formatDate(row.Timestamp)}
+                          </span>
+                          {showBadge && (
+                            <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium whitespace-nowrap ${
+                              isDaytime 
+                                ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' 
+                                : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                            }`}>
+                              {isDaytime ? <Sun className="h-2.5 w-2.5" /> : <Moon className="h-2.5 w-2.5" />}
+                              {isDaytime ? 'Day' : 'Night'}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-gray-500 dark:text-slate-400 font-semibold">
+                          {formatTime(row.Timestamp)}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                        {row['कोणत्या वन्यप्राण्याची नोंद करू इच्छिता:']}
                       </span>
-                      <span className="text-gray-500 dark:text-slate-400">
-                        {formatTime(row.Timestamp)}
+                    </TableCell>
+                    <TableCell>
+                      <span className="font-medium text-gray-900 dark:text-slate-200">
+                        {row['तालुका:']}
                       </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                      {row['कोणत्या वन्यप्राण्याची नोंद करू इच्छिता:']}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <span className="font-medium text-gray-900 dark:text-slate-200">
-                      {row['तालुका:']}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-gray-700 dark:text-slate-300">
-                      {row['गावाचे नाव:']}
-                    </span>
-                  </TableCell>
-                  <TableCell className="max-w-md">
-                    <div className="line-clamp-2 text-sm text-gray-700 dark:text-slate-300" title={row['वन्यजीवांच्या बाबत आपण काय कळवू इच्छिता याची नोंद करा:']}>
-                      {row['वन्यजीवांच्या बाबत आपण काय कळवू इच्छिता याची नोंद करा:']}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <span className="font-medium text-gray-900 dark:text-slate-200">
-                      {row['संपर्क करणाऱ्याचे नाव:']}
-                    </span>
-                  </TableCell>
-                </TableRow>
-              ))}
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-gray-700 dark:text-slate-300">
+                        {row['गावाचे नाव:']}
+                      </span>
+                    </TableCell>
+                    <TableCell className="max-w-md">
+                      <div className="line-clamp-2 text-sm text-gray-700 dark:text-slate-300" title={row['वन्यजीवांच्या बाबत आपण काय कळवू इच्छिता याची नोंद करा:']}>
+                        {row['वन्यजीवांच्या बाबत आपण काय कळवू इच्छिता याची नोंद करा:']}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className="font-medium text-gray-900 dark:text-slate-200">
+                        {row['संपर्क करणाऱ्याचे नाव:']}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
             </TableBody>
           </Table>
         </div>
+      </div>
+
+      {/* Pagination Controls at Bottom */}
+      <div className="flex items-center justify-center gap-2 bg-white dark:bg-slate-800/50 dark:backdrop-blur-sm p-4 rounded-xl border border-gray-200 dark:border-slate-700">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => goToPage(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="shadow-sm hover:shadow-md transition-all duration-300 border-gray-300 dark:border-slate-600 disabled:opacity-50 dark:bg-slate-800 dark:text-slate-200"
+        >
+          <ChevronLeft className="h-4 w-4 mr-1" />
+          Previous
+        </Button>
+        <div className="flex items-center gap-2 px-4 py-2 bg-emerald-600 dark:bg-gradient-to-r dark:from-emerald-600 dark:to-teal-700 text-white rounded-lg shadow-md font-semibold">
+          <span className="text-sm">Page {currentPage} of {totalPages}</span>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => goToPage(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="shadow-sm hover:shadow-md transition-all duration-300 border-gray-300 dark:border-slate-600 disabled:opacity-50 dark:bg-slate-800 dark:text-slate-200"
+        >
+          Next
+          <ChevronRight className="h-4 w-4 ml-1" />
+        </Button>
       </div>
     </div>
   )

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Calendar } from 'lucide-react'
+import { Calendar, RotateCcw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 
@@ -23,7 +23,14 @@ export function DateRangeFilter({ minDate, maxDate, value, onChange }: DateRange
   }, [value])
 
   const formatDate = (date: Date) => {
-    return date.toISOString().split('T')[0]
+    if (!date || isNaN(date.getTime())) {
+      return ''
+    }
+    try {
+      return date.toISOString().split('T')[0]
+    } catch {
+      return ''
+    }
   }
 
   const handleStartChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,12 +45,33 @@ export function DateRangeFilter({ minDate, maxDate, value, onChange }: DateRange
     onChange([startDate, newEnd])
   }
 
+  const handleReset = () => {
+    setStartDate(minDate)
+    setEndDate(maxDate)
+    onChange([minDate, maxDate])
+  }
+
+  const isModified = startDate.getTime() !== minDate.getTime() || endDate.getTime() !== maxDate.getTime()
+
   return (
-    <div className="space-y-2">
-      <label className="text-sm font-semibold text-gray-700 dark:text-slate-300 flex items-center gap-2">
-        <Calendar className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-        Date Range
-      </label>
+    <div className="space-y-2 flex flex-col justify-center h-full">
+      <div className="flex items-center justify-between">
+        <label className="text-sm font-semibold text-gray-700 dark:text-slate-300 flex items-center gap-2">
+          <Calendar className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+          Date Range
+        </label>
+        {isModified && (
+          <Button
+            onClick={handleReset}
+            variant="ghost"
+            size="sm"
+            className="h-6 px-2 text-xs text-gray-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400"
+          >
+            <RotateCcw className="h-3 w-3 mr-1" />
+            Reset
+          </Button>
+        )}
+      </div>
       <div className="flex gap-2 items-center">
         <input
           type="date"
@@ -53,7 +81,7 @@ export function DateRangeFilter({ minDate, maxDate, value, onChange }: DateRange
           onChange={handleStartChange}
           className="flex h-10 w-full rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-gray-900 dark:text-slate-200 focus:border-emerald-500 dark:focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
         />
-        <span className="text-gray-500 dark:text-slate-400">to</span>
+        <span className="text-gray-500 dark:text-slate-400 text-sm">to</span>
         <input
           type="date"
           value={formatDate(endDate)}
