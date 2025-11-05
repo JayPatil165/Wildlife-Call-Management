@@ -95,6 +95,9 @@ export function HeatmapChart({ data }: HeatmapChartProps) {
             size: responsive.isMobile ? 8 : 10,
           },
         },
+        xgap: 0.75,
+        ygap: 0.75,
+        showscale: true,
       },
     ]
   }, [data, isDark, responsive])

@@ -11,8 +11,9 @@ export async function fetchIncidentData(): Promise<IncidentData[]> {
     const credentialsPath = path.join(process.cwd(), 'credentials.json')
     const credentials = JSON.parse(fs.readFileSync(credentialsPath, 'utf8'))
 
-    // Hardcoded sheet ID from Streamlit app
-    const sheetId = '1eey_a4t5EOL_nyEDau4FLvXomcnwgxWa5F3Rjd52OQg'
+    // Read sheet ID from sheetid.txt
+    const sheetIdPath = path.join(process.cwd(), 'sheetid.txt')
+    const sheetId = fs.readFileSync(sheetIdPath, 'utf8').trim()
 
     // Authenticate with Google Sheets
     const auth = new google.auth.GoogleAuth({
