@@ -26,7 +26,6 @@ export type ChartType =
   | 'repeat' 
   | 'timeline' 
   | 'monthly_taluka' 
-  | 'villages' 
   | 'callers' 
   | 'hourly' 
   | 'heatmap'
@@ -49,7 +48,6 @@ const chartButtons: ChartButton[] = [
   { label: 'Repeat Taluka', key: 'repeat', icon: <TrendingUp className="h-4 w-4" />, color: 'indigo' },
   { label: 'Wildlife Timeline', key: 'timeline', icon: <Calendar className="h-4 w-4" />, color: 'teal' },
   { label: 'Monthly by Taluka', key: 'monthly_taluka', icon: <BarChart3 className="h-4 w-4" />, color: 'violet' },
-  { label: 'Top Villages', key: 'villages', icon: <Users className="h-4 w-4" />, color: 'amber' },
   { label: 'Frequent Callers', key: 'callers', icon: <Phone className="h-4 w-4" />, color: 'rose' },
   { label: 'Hourly Distribution', key: 'hourly', icon: <Clock className="h-4 w-4" />, color: 'lime' },
 ]
@@ -193,18 +191,18 @@ export function ChartSelector({ activeChart, onChartChange }: ChartSelectorProps
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
           {chartButtons.map((chart) => (
             <Button
               key={chart.key}
               onClick={() => onChartChange(chart.key)}
               variant="outline"
-              className={`h-auto py-3 px-3 flex flex-col items-center gap-2 transition-all duration-300 border ${getColorClasses(chart.color, activeChart === chart.key)}`}
+              className={`h-auto py-5 px-2 flex flex-col items-center gap-3 transition-all duration-300 border ${getColorClasses(chart.color, activeChart === chart.key)}`}
             >
               <div className="flex items-center justify-center">
                 {chart.icon}
               </div>
-              <span className="text-xs font-medium text-center leading-tight">
+              <span className="text-sm font-medium text-center leading-tight">
                 {chart.label}
               </span>
             </Button>

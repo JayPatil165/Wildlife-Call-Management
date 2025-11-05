@@ -10,7 +10,6 @@ import { IncidentTypesChart } from './incident-types-chart'
 import { IncidentFrequencyChart } from './incident-frequency-chart'
 import { TopTalukasChart } from './top-talukas-chart'
 import { MonthlyTrendChart } from './monthly-trend-chart'
-import { TopVillagesChart } from './top-villages-chart'
 import { FrequentCallersChart } from './frequent-callers-chart'
 import { HourlyDistributionChart } from './hourly-distribution-chart'
 import { RepeatTalukaChart } from './repeat-taluka-chart'
@@ -33,7 +32,6 @@ const chartTitles: Record<ChartType, string> = {
   repeat: 'Repeat Taluka Analysis',
   timeline: 'Wildlife Timeline',
   monthly_taluka: 'Monthly Incidents by Taluka',
-  villages: 'Top Villages by Incidents',
   callers: 'Frequent Callers Analysis',
   hourly: 'Hourly Distribution of Incidents',
   heatmap: 'Incident Heatmap',
@@ -68,8 +66,6 @@ export function ChartDisplay({ chartType, data }: ChartDisplayProps) {
       return renderChart(chartTitles[chartType], TopTalukasChart)
     case 'monthly':
       return renderChart(chartTitles[chartType], MonthlyTrendChart)
-    case 'villages':
-      return renderChart(chartTitles[chartType], TopVillagesChart)
     case 'callers':
       return renderChart(chartTitles[chartType], FrequentCallersChart)
     case 'hourly':

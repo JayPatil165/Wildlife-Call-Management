@@ -154,9 +154,12 @@ export default function Home() {
         <div className="flex items-center justify-between no-print">
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 dark:from-emerald-600 dark:to-teal-700 rounded-2xl shadow-lg shadow-emerald-500/30 dark:shadow-emerald-500/20 transform hover:scale-105 transition-transform">
+              <button 
+                onClick={() => setActiveTab('overview')}
+                className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 dark:from-emerald-600 dark:to-teal-700 rounded-2xl shadow-lg shadow-emerald-500/30 dark:shadow-emerald-500/20 transform hover:scale-105 transition-transform cursor-pointer"
+              >
                 <span className="text-3xl">🦁</span>
-              </div>
+              </button>
               <div>
                 <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
                   Wildlife Incident Dashboard
