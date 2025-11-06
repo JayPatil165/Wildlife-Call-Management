@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import dynamic from 'next/dynamic'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -13,6 +14,19 @@ import { ChartSelector, ChartType } from '@/components/charts/chart-selector'
 import { ChartDisplay } from '@/components/charts/chart-display'
 import { parseIncidentDate } from '@/utils/date-parser'
 import { BarChart3, Database, RefreshCw, Activity, MapPin, Users, TrendingUp, AlertCircle, Home as HomeIcon, Squirrel, Calendar, Clock, Moon, Sun, ArrowUpRight, ArrowDownRight, Minus, FileText, Filter, Download, Printer } from 'lucide-react'
+
+// Dynamically import GeographicalMap (client-side only)
+const GeographicalMap = dynamic(
+  () => import('@/components/charts/geographical-map').then(mod => mod.GeographicalMap),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center h-[500px]">
+        <div className="text-muted-foreground">Loading map...</div>
+      </div>
+    )
+  }
+)
 
 export default function Home() {
   const [data, setData] = useState<IncidentData[]>([])
@@ -729,6 +743,22 @@ export default function Home() {
               </CardContent>
             </Card>
 
+            {/* Geographical Distribution Map */}
+            <Card className="border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 shadow-md">
+              <CardHeader className="border-b border-gray-200 dark:border-slate-700">
+                <CardTitle className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-br from-emerald-600 to-teal-700 rounded-lg shadow-md">
+                    <MapPin className="h-5 w-5 text-white" />
+                  </div>
+                  Geographical Distribution
+                </CardTitle>
+                <CardDescription>Interactive map showing incident locations across talukas</CardDescription>
+              </CardHeader>
+              <CardContent className="p-4">
+                {isMounted && <GeographicalMap data={filteredData} />}
+              </CardContent>
+            </Card>
+
             <div className="grid gap-6 lg:grid-cols-2">
               {/* Recent Activity Feed */}
               <Card className="border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 shadow-md">
@@ -835,14 +865,14 @@ export default function Home() {
                     const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000)
                     
                     const last24HoursData = filteredData.filter(d => {
-                      const date = new Date(d.Timestamp)
-                      return !isNaN(date.getTime()) && date >= twentyFourHoursAgo
+                      const date = parseIncidentDate(d.Timestamp)
+                      return date !== null && date >= twentyFourHoursAgo
                     })
                     
                     // Calculate hourly distribution for last 24 hours
                     const hourlyData = last24HoursData.reduce((acc, d) => {
-                      const date = new Date(d.Timestamp)
-                      if (!isNaN(date.getTime())) {
+                      const date = parseIncidentDate(d.Timestamp)
+                      if (date !== null) {
                         const hour = date.getHours()
                         acc[hour] = (acc[hour] || 0) + 1
                       }
@@ -850,6 +880,19 @@ export default function Home() {
                     }, {} as Record<number, number>)
                     
                     const maxHourlyCount = Math.max(...Object.values(hourlyData), 1)
+                    
+                    // Create array of hours for the last 24 hours with full date info
+                    const currentHour = now.getHours()
+                    const hourLabels = Array.from({ length: 24 }, (_, i) => {
+                      // Start from 24 hours ago and go to current hour
+                      const hoursBack = 23 - i
+                      const date = new Date(now.getTime() - hoursBack * 60 * 60 * 1000)
+                      return {
+                        hour: date.getHours(),
+                        date: date,
+                        isNewDay: date.getHours() === 0, // Midnight marks new day
+                      }
+                    })
                     
                     return (
                       <div className="space-y-6">
@@ -900,39 +943,60 @@ export default function Home() {
                               {last24HoursData.length} incident{last24HoursData.length !== 1 ? 's' : ''}
                             </span>
                           </h4>
-                          <div className="grid grid-cols-12 gap-1">
-                            {Array.from({ length: 24 }, (_, hour) => {
-                              const count = hourlyData[hour] || 0
-                              const heightPercent = (count / maxHourlyCount * 100)
-                              const isDaytime = hour >= 6 && hour < 18
-                              
-                              return (
-                                <div key={hour} className="flex flex-col items-center gap-1 group">
-                                  <div className="relative w-full h-20 flex items-end">
-                                    <div 
-                                      className={`w-full rounded-t transition-all duration-300 ${
-                                        isDaytime 
-                                          ? 'bg-gradient-to-t from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600' 
-                                          : 'bg-gradient-to-t from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800'
-                                      }`}
-                                      style={{ height: `${heightPercent}%` }}
-                                    >
-                                      {/* Tooltip on hover */}
-                                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
-                                        <div className="bg-gray-900 dark:bg-slate-700 text-white text-xs rounded py-1 px-2 whitespace-nowrap shadow-lg">
-                                          {hour % 12 || 12} {hour >= 12 ? 'PM' : 'AM'}: {count}
+                          <div className="relative">
+                            <div className="grid grid-cols-12 gap-1">
+                              {hourLabels.map((item, index) => {
+                                const count = hourlyData[item.hour] || 0
+                                const heightPercent = (count / maxHourlyCount * 100)
+                                const isDaytime = item.hour >= 6 && item.hour < 18
+                                const hour12 = item.hour % 12 || 12
+                                const ampm = item.hour >= 12 ? 'PM' : 'AM'
+                                
+                                return (
+                                  <div key={`${item.hour}-${index}`} className="flex flex-col items-center gap-1 group relative">
+                                    {/* Vertical dotted line for date change */}
+                                    {item.isNewDay && index > 0 && (
+                                      <div className="absolute left-0 top-0 bottom-0 w-px border-l-2 border-dashed border-orange-500 z-10"></div>
+                                    )}
+                                    
+                                    {/* Bar */}
+                                    <div className="relative w-full h-20 flex items-end">
+                                      <div 
+                                        className={`w-full rounded-t transition-all duration-300 ${
+                                          isDaytime 
+                                            ? 'bg-gradient-to-t from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600' 
+                                            : 'bg-gradient-to-t from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800'
+                                        }`}
+                                        style={{ height: `${heightPercent}%`, minHeight: count > 0 ? '4px' : '0' }}
+                                      >
+                                        {/* Tooltip on hover */}
+                                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-20">
+                                          <div className="bg-gray-900 dark:bg-slate-700 text-white text-xs rounded py-1 px-2 whitespace-nowrap shadow-lg">
+                                            <div className="font-semibold">{hour12} {ampm}</div>
+                                            <div className="text-[10px] text-gray-300">{item.date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}</div>
+                                            <div className="text-yellow-300 font-bold">{count} incident{count !== 1 ? 's' : ''}</div>
+                                          </div>
                                         </div>
                                       </div>
                                     </div>
+                                    
+                                    {/* Hour label */}
+                                    <span className="text-[10px] text-gray-600 dark:text-slate-400 font-medium">
+                                      {hour12} {ampm}
+                                    </span>
+                                    
+                                    {/* Date marker at bottom for new day */}
+                                    {item.isNewDay && index > 0 && (
+                                      <div className="text-[9px] text-orange-600 dark:text-orange-400 font-bold whitespace-nowrap">
+                                        {item.date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}
+                                      </div>
+                                    )}
                                   </div>
-                                  <span className="text-[10px] text-gray-500 dark:text-slate-400 font-medium">
-                                    {hour % 12 || 12}
-                                  </span>
-                                </div>
-                              )
-                            })}
+                                )
+                              })}
+                            </div>
                           </div>
-                          <div className="flex items-center justify-center gap-4 mt-3 text-xs">
+                          <div className="flex items-center justify-center gap-4 mt-4 text-xs">
                             <div className="flex items-center gap-1">
                               <div className="w-3 h-3 rounded bg-gradient-to-r from-emerald-400 to-teal-500"></div>
                               <span className="text-gray-600 dark:text-slate-400">Day (6AM-6PM)</span>

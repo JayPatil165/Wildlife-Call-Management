@@ -13,7 +13,8 @@ import {
   Phone, 
   Clock, 
   Grid3x3,
-  Activity
+  Activity,
+  Map
 } from 'lucide-react'
 
 export type ChartType = 

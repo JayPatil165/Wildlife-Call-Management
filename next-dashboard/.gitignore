@@ -48,3 +48,6 @@ sheetid.txt
 *.pdf
 ~$*.xlsx
 ~$*.xls
+
+# Implementation task files
+GEOMAP-IMPLEMENTATION-TASKS.md

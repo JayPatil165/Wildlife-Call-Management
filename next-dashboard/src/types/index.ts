@@ -23,6 +23,11 @@ export interface DashboardStats {
   totalCalls: number
 }
 
+export interface Coordinates {
+  lat: number
+  lon: number
+}
+
 export type ChartType =
   | 'wildlife'
   | 'taluka'
@@ -37,4 +42,5 @@ export type ChartType =
   | 'callers'
   | 'hourly'
   | 'heatmap'
+  | 'geomap'
   | 'table'
