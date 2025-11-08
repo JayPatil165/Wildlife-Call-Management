@@ -1,6 +1,8 @@
 # Sensitive files
 credentials.json
 sheetid.txt
+GEOMAP-IMPLEMENTATION-TASKS.md
+Contacts/
 
 # Data files (Excel and PDF)
 *.xlsx
