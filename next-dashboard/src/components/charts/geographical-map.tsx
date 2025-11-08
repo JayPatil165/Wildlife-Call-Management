@@ -58,9 +58,15 @@ export function GeographicalMap({ data }: GeographicalMapProps) {
       color: string
     }> = []
 
-    coordinates.forEach((coords, taluka) => {
+    // Iterate over talukas seen in incidents and find coords from coordinates map
+    Array.from(talukaCounts.keys()).forEach((taluka) => {
       const count = talukaCounts.get(taluka) || 0
-      if (count > 0) {
+      if (count === 0) return
+
+      // Get coordinates from the geocoding hook's results
+      const coords = coordinates.get(taluka)
+
+      if (coords) {
         const normalizedSize = count / maxCount
         const radius = 8 + (normalizedSize * 17)
 
@@ -81,6 +87,22 @@ export function GeographicalMap({ data }: GeographicalMapProps) {
 
     return markerData
   }, [coordinates, talukaCounts, maxCount])
+
+  // Compute district bounds from coordinates
+  const districtBounds = useMemo(() => {
+    try {
+      if (coordinates.size > 0) {
+        const coords: [number, number][] = []
+        coordinates.forEach((c) => {
+          coords.push([c.lat, c.lon])
+        })
+        return coords
+      }
+      return []
+    } catch (e) {
+      return []
+    }
+  }, [coordinates])
 
   const center = useMemo(() => {
     if (markers.length === 0) {
@@ -152,7 +174,7 @@ export function GeographicalMap({ data }: GeographicalMapProps) {
         )}
       </div>
 
-      <MapRenderer center={center} markers={markers} />
+      <MapRenderer center={center} markers={markers} districtBounds={districtBounds} />
 
       <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground">
         <div className="flex items-center gap-2">
@@ -176,7 +198,7 @@ export function GeographicalMap({ data }: GeographicalMapProps) {
   )
 }
 
-function MapRenderer({ center, markers }: {
+function MapRenderer({ center, markers, districtBounds }: {
   center: { lat: number; lon: number }
   markers: Array<{
     taluka: string
@@ -185,9 +207,11 @@ function MapRenderer({ center, markers }: {
     radius: number
     color: string
   }>
+  districtBounds: [number, number][]
 }) {
   const [mounted, setMounted] = useState(false)
   const [map, setMap] = useState<any>(null)
+  const [initialViewSet, setInitialViewSet] = useState(false)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -206,9 +230,70 @@ function MapRenderer({ center, markers }: {
   // Reset map to initial view
   const handleResetMap = () => {
     if (map) {
-      map.setView([center.lat, center.lon], 10)
+      try {
+        // First try to fit all markers
+        if (markers && markers.length > 0) {
+          const bounds = markers.map(m => [m.coords.lat, m.coords.lon])
+          map.fitBounds(bounds, { 
+            padding: [60, 60], 
+            maxZoom: 11 
+          })
+        }
+        // Fallback to district bounds if available
+        else if (districtBounds && districtBounds.length > 0) {
+          map.fitBounds(districtBounds, { padding: [80, 80], paddingTopLeft: [0, 120], maxZoom: 10 })
+        } 
+        // Final fallback to center
+        else {
+          map.setView([center.lat, center.lon], 10)
+        }
+      } catch (err) {
+        console.error('Error resetting map:', err)
+      }
     }
   }
+
+  // On first mount, fit all markers to ensure they're all visible
+  useEffect(() => {
+    if (!map || initialViewSet) return
+    if (!markers || markers.length === 0) return
+    
+    try {
+      const bounds = markers.map(m => [m.coords.lat, m.coords.lon])
+      map.fitBounds(bounds, { 
+        padding: [60, 60], 
+        maxZoom: 11 
+      })
+      setInitialViewSet(true)
+    } catch (e) {
+      // Fallback to district bounds
+      if (districtBounds && districtBounds.length > 0) {
+        try {
+          map.fitBounds(districtBounds, { padding: [80, 80], paddingTopLeft: [0, 120], maxZoom: 10 })
+          setInitialViewSet(true)
+        } catch (err) {
+          // ignore
+        }
+      }
+    }
+  }, [map, markers, districtBounds, initialViewSet])
+
+  // Fit bounds whenever markers change (after initial view is set)
+  useEffect(() => {
+    if (!map) return
+    if (!initialViewSet) return
+    if (!markers || markers.length === 0) return
+
+    try {
+      const bounds = markers.map(m => [m.coords.lat, m.coords.lon])
+      map.fitBounds(bounds, { 
+        padding: [60, 60], 
+        maxZoom: 11 
+      })
+    } catch (err) {
+      // ignore
+    }
+  }, [map, markers, initialViewSet])
 
   if (!mounted) {
     return (

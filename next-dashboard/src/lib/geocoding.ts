@@ -4,6 +4,36 @@
  */
 
 import { Coordinates } from '@/types'
+import { getCachedCoordinates } from '@/lib/geocode-cache'
+
+// Module-level cache for static taluka mapping (loaded from public file)
+let STATIC_TALUKA_MAP: Map<string, Coordinates> | null = null
+
+export async function loadStaticTalukaMap(): Promise<Map<string, Coordinates>> {
+  if (STATIC_TALUKA_MAP) return STATIC_TALUKA_MAP
+
+  try {
+    const resp = await fetch('/data/taluka-coords.json')
+    if (!resp.ok) {
+      STATIC_TALUKA_MAP = new Map()
+      return STATIC_TALUKA_MAP
+    }
+    const json = await resp.json()
+    const m = new Map()
+    Object.keys(json || {}).forEach(key => {
+      const val = json[key]
+      if (val && typeof val.lat === 'number' && typeof val.lon === 'number') {
+        m.set(key.trim(), { lat: val.lat, lon: val.lon })
+      }
+    })
+    STATIC_TALUKA_MAP = m
+    return m
+  } catch (err) {
+    console.error('Failed to load static taluka map:', err)
+    STATIC_TALUKA_MAP = new Map()
+    return STATIC_TALUKA_MAP
+  }
+}
 
 // Nominatim API configuration
 const NOMINATIM_BASE_URL = 'https://nominatim.openstreetmap.org/search'
@@ -140,21 +170,52 @@ export async function geocodeTalukas(
   country: string = 'India',
   onProgress?: (progress: number) => void
 ): Promise<Map<string, Coordinates>> {
-  // Build full location strings
+  const results = new Map<string, Coordinates>()
+
+  // 1) Load static mapping file and populate results for any known talukas
+  const staticMap = await loadStaticTalukaMap()
+  const remaining: string[] = []
+
+  talukaNames.forEach(taluka => {
+    const t = taluka?.trim()
+    if (!t) return
+
+    // Priority: explicit static mapping (Devanagari key as provided in form)
+    if (staticMap.has(t)) {
+      results.set(t, staticMap.get(t)!)
+      return
+    }
+
+    // Next: consistent client cache (user-triggered caching may have stored this)
+    const cached = getCachedCoordinates(`${t}, ${district}, ${state}, ${country}`) || getCachedCoordinates(t)
+    if (cached) {
+      results.set(t, cached)
+      return
+    }
+
+    // Otherwise we'll geocode it
+    remaining.push(t)
+  })
+
+  if (remaining.length === 0) {
+    // Nothing left to geocode
+    if (onProgress) onProgress(100)
+    return results
+  }
+
+  // Build full location strings for remaining and geocode
   const locationMap = new Map<string, string>() // fullLocation -> originalTaluka
   const fullLocations: string[] = []
 
-  talukaNames.forEach(taluka => {
+  remaining.forEach(taluka => {
     const fullLocation = buildLocationString(taluka, district, state, country)
     locationMap.set(fullLocation, taluka)
     fullLocations.push(fullLocation)
   })
 
-  // Geocode all locations
   const geocodedResults = await geocodeBatch(fullLocations, onProgress)
 
   // Map back to original taluka names
-  const results = new Map<string, Coordinates>()
   geocodedResults.forEach((coords, fullLocation) => {
     const originalTaluka = locationMap.get(fullLocation)
     if (originalTaluka) {
